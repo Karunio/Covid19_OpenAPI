@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using MetroFramework.Controls;
@@ -31,7 +32,7 @@ namespace UtilizeOpenAPI
             DtEnd.Value = DateTime.Today;
         }
 
-        private DataSet GetCoronaDataSet(DateTime begin, DateTime end)
+        private async Task<DataSet> GetCoronaDataSet(DateTime begin, DateTime end)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(url);
@@ -46,7 +47,7 @@ namespace UtilizeOpenAPI
                 Encoding = Encoding.UTF8
             };
 
-            string xmlData = client.DownloadString(builder.ToString());
+            string xmlData = await client.DownloadStringTaskAsync(builder.ToString());
 
             XmlDocument document = new XmlDocument();
             document.LoadXml(xmlData);
@@ -145,12 +146,12 @@ namespace UtilizeOpenAPI
             }
         }
 
-        private void BtnSearch_Click(object sender, EventArgs e)
+        private async void BtnSearch_Click(object sender, EventArgs e)
         {
             DateTime begin = DtBegin.Value.AddDays(-1);
             DateTime end = DtEnd.Value;
 
-            DataSet coronaDataSet = GetCoronaDataSet(begin, end);
+            DataSet coronaDataSet = await GetCoronaDataSet(begin, end);
             coronaDataList = CreateCoronaList(coronaDataSet.Tables["item"].Rows);
             AddTiles(coronaDataList);
             DrawChart(coronaDataList);
